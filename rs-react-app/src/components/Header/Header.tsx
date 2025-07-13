@@ -2,6 +2,7 @@ import { Component } from 'react';
 
 interface HeaderProps {
   onSearchSubmit: (searchTerm: string) => void;
+  initialValue: string;
 }
 
 interface HeaderState {
@@ -12,7 +13,7 @@ class Header extends Component<HeaderProps, HeaderState> {
   constructor(props: HeaderProps) {
     super(props);
     this.state = {
-      inputValue: '',
+      inputValue: props.initialValue,
     };
   }
 
@@ -22,10 +23,7 @@ class Header extends Component<HeaderProps, HeaderState> {
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const { inputValue } = this.state;
-    if (inputValue.trim()) {
-      this.props.onSearchSubmit(inputValue.trim());
-    }
+    this.props.onSearchSubmit(this.state.inputValue);
   };
 
   render() {

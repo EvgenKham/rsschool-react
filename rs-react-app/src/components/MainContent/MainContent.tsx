@@ -1,16 +1,16 @@
 import { Component } from 'react';
-import ResultsTable from '../ResultsTable/ResultsTable';
+// import ResultsTable from '../ResultsTable/ResultsTable';
 
 interface MainContentProps {
   searchTerm: string;
-  results: Array<{ id: number; name: string; description: string }>;
+  results: { name: string; description: string }[];
   isLoading: boolean;
   error: string | null;
 }
 
 class MainContent extends Component<MainContentProps> {
   render() {
-    const { searchTerm, results, isLoading, error } = this.props;
+    const { results, isLoading, error } = this.props;
 
     return (
       <main className="main-content">
@@ -31,8 +31,27 @@ class MainContent extends Component<MainContentProps> {
           )}
 
           {!isLoading && !error && (
-            <ResultsTable results={results} searchTerm={searchTerm} />
+            <table className="results-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {results.map((pokemon, index) => (
+                  <tr key={index}>
+                    <td>{pokemon.name}</td>
+                    <td>{pokemon.description}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
+
+          {/* {!isLoading && !error && (
+            <ResultsTable results={results} searchTerm={searchTerm} />
+          )} */}
         </div>
       </main>
     );

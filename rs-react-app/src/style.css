@@ -24,6 +24,16 @@
   user-select: none;
 }
 
+@media (max-width: 640px) {
+  .app-header {
+    flex-direction: column;
+  }
+
+  .logo {
+    margin-bottom: 15px;
+  }
+}
+
 .search-container {
   width: 100%;
   max-width: 600px;
