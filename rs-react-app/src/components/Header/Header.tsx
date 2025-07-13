@@ -36,7 +36,7 @@ class Header extends Component<HeaderProps, HeaderState> {
               type="text"
               className="search-input"
               name="search"
-              placeholder="Search..."
+              placeholder="Input name of pokemon"
               aria-label="Search"
               value={this.state.inputValue}
               onChange={this.handleInputChange}

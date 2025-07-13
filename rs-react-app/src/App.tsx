@@ -29,7 +29,6 @@ class App extends Component<object, AppState> {
     };
   }
 
-  // Метод для получения сохраненного поискового запроса
   getSavedSearchTerm = (): string => {
     try {
       const savedTerm = localStorage.getItem(SEARCH_TERM_KEY);
@@ -40,7 +39,6 @@ class App extends Component<object, AppState> {
     }
   };
 
-  // Метод для сохранения поискового запроса
   saveSearchTerm = (term: string): void => {
     try {
       localStorage.setItem(SEARCH_TERM_KEY, term);
