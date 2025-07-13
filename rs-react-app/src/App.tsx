@@ -4,6 +4,8 @@ import Header from './components/Header/Header';
 import MainContent from './components/MainContent/MainContent';
 import './style.css';
 
+const SEARCH_TERM_KEY = 'pokemonSearchTerm';
+
 interface PokemonResult {
   name: string;
   url: string;
@@ -20,12 +22,32 @@ class App extends Component<object, AppState> {
   constructor(props: object) {
     super(props);
     this.state = {
-      searchTerm: localStorage.getItem('searchTerm') || '',
+      searchTerm: this.getSavedSearchTerm(),
       results: [],
       isLoading: false,
       error: null,
     };
   }
+
+  // Метод для получения сохраненного поискового запроса
+  getSavedSearchTerm = (): string => {
+    try {
+      const savedTerm = localStorage.getItem(SEARCH_TERM_KEY);
+      return savedTerm ? savedTerm : '';
+    } catch (error) {
+      console.error('Error reading from LocalStorage:', error);
+      return '';
+    }
+  };
+
+  // Метод для сохранения поискового запроса
+  saveSearchTerm = (term: string): void => {
+    try {
+      localStorage.setItem(SEARCH_TERM_KEY, term);
+    } catch (error) {
+      console.error('Error saving to LocalStorage:', error);
+    }
+  };
 
   componentDidMount() {
     this.fetchPokemon(this.state.searchTerm);
@@ -60,20 +82,67 @@ class App extends Component<object, AppState> {
         this.setState({ results: pokemonList, isLoading: false });
       }
 
-      localStorage.setItem('searchTerm', searchTerm);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      this.saveSearchTerm(searchTerm);
     } catch (error) {
-      this.setState({
-        error: 'Error fetching data',
-        isLoading: false,
-        results: [],
-      });
+      this.handleApiError(error);
     }
   };
 
+  handleApiError = (error: unknown) => {
+    let errorMessage = 'An unexpected error occurred';
+
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+
+      switch (status) {
+        case 400:
+          errorMessage = 'Invalid request parameters. Error code 400';
+          break;
+        case 401:
+          errorMessage = 'Authentication required. Error code 401';
+          break;
+        case 403:
+          errorMessage = 'Access denied. Error code 403';
+          break;
+        case 404:
+          errorMessage = 'Pokemon not found. Error code 404';
+          break;
+        case 429:
+          errorMessage =
+            'Too many requests, please try again later. Error code 429';
+          break;
+        case 500:
+          errorMessage = 'Server error, please try again later. Error code 500';
+          break;
+        case 503:
+          errorMessage =
+            'Service unavailable, please try again later. Error code 503';
+          break;
+        default:
+          if (error.code === 'ERR_NETWORK') {
+            errorMessage = 'Network error, please check your connection';
+          } else if (error.response) {
+            errorMessage = `Request failed with status ${status}`;
+          } else if (error.request) {
+            errorMessage = 'No response received from server';
+          }
+      }
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    this.setState({
+      error: errorMessage,
+      isLoading: false,
+      results: [],
+    });
+  };
+
   handleSearchSubmit = (searchTerm: string) => {
-    this.setState({ searchTerm }, () => {
-      this.fetchPokemon(searchTerm);
+    const processedTerm = searchTerm.trim();
+    this.saveSearchTerm(processedTerm);
+    this.setState({ searchTerm: processedTerm }, () => {
+      this.fetchPokemon(processedTerm);
     });
   };
 
